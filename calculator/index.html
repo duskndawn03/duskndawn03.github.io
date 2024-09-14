@@ -3,40 +3,58 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Age Calculator</title>
+    <title>Age and Time Calculator</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             margin: 50px;
             text-align: center;
         }
-        input {
+        input, button {
             padding: 10px;
             margin: 10px;
         }
         button {
-            padding: 10px 20px;
             background-color: #4CAF50;
             color: white;
             border: none;
             cursor: pointer;
         }
+        .output {
+            margin-top: 20px;
+        }
     </style>
 </head>
 <body>
 
-    <h2>Age Calculator</h2>
+    <h2>Age and Time Calculator</h2>
+
+    <!-- Age Calculator Section -->
+    <h3>Age Calculator</h3>
     <p>Enter your Date of Birth:</p>
     <input type="date" id="dob">
     <button onclick="calculateAge()">Calculate Age</button>
+    <h4 id="ageResult" class="output"></h4>
 
-    <h3 id="result"></h3>
+    <!-- Time Calculator Section -->
+    <h3>Time Difference Calculator</h3>
+    <p>Enter Start and End Time:</p>
+    <input type="datetime-local" id="startTime">
+    <input type="datetime-local" id="endTime">
+    <br>
+    <button onclick="calculateTime('seconds')">Show in Seconds</button>
+    <button onclick="calculateTime('minutes')">Show in Minutes</button>
+    <button onclick="calculateTime('hours')">Show in Hours</button>
+    <button onclick="calculateTime('days')">Show in Days</button>
+    <button onclick="calculateTime('full')">Show Full Breakdown</button>
+    <h4 id="timeResult" class="output"></h4>
 
     <script>
+        // Age Calculator Function
         function calculateAge() {
             const dob = document.getElementById("dob").value;
             if (dob === "") {
-                document.getElementById("result").innerHTML = "Please select a valid date of birth.";
+                document.getElementById("ageResult").innerHTML = "Please select a valid date of birth.";
                 return;
             }
 
@@ -51,7 +69,54 @@
                 age--;
             }
 
-            document.getElementById("result").innerHTML = `Your age is: ${age} years old.`;
+            document.getElementById("ageResult").innerHTML = `Your age is: ${age} years old.`;
+        }
+
+        // Time Difference Calculator Function
+        function calculateTime(format) {
+            const startTime = document.getElementById("startTime").value;
+            const endTime = document.getElementById("endTime").value;
+
+            if (startTime === "" || endTime === "") {
+                document.getElementById("timeResult").innerHTML = "Please select valid start and end times.";
+                return;
+            }
+
+            const start = new Date(startTime);
+            const end = new Date(endTime);
+
+            if (start > end) {
+                document.getElementById("timeResult").innerHTML = "End time must be after start time.";
+                return;
+            }
+
+            let timeDiff = (end - start) / 1000;  // Difference in seconds
+
+            const seconds = Math.floor(timeDiff);
+            const minutes = Math.floor(timeDiff / 60);
+            const hours = Math.floor(timeDiff / 3600);
+            const days = Math.floor(timeDiff / 86400);
+
+            if (format === "seconds") {
+                document.getElementById("timeResult").innerHTML = `Total Time: ${seconds} seconds.`;
+            } else if (format === "minutes") {
+                document.getElementById("timeResult").innerHTML = `Total Time: ${minutes} minutes.`;
+            } else if (format === "hours") {
+                document.getElementById("timeResult").innerHTML = `Total Time: ${hours} hours.`;
+            } else if (format === "days") {
+                document.getElementById("timeResult").innerHTML = `Total Time: ${days} days.`;
+            } else if (format === "full") {
+                const fullDays = Math.floor(timeDiff / 86400);
+                timeDiff %= 86400;
+
+                const fullHours = Math.floor(timeDiff / 3600);
+                timeDiff %= 3600;
+
+                const fullMinutes = Math.floor(timeDiff / 60);
+                const fullSeconds = Math.floor(timeDiff % 60);
+
+                document.getElementById("timeResult").innerHTML = `Total Time: ${fullDays} days, ${fullHours} hours, ${fullMinutes} minutes, and ${fullSeconds} seconds.`;
+            }
         }
     </script>
 
