@@ -23,6 +23,22 @@
         .output {
             margin-top: 20px;
         }
+        /* Style for form layout */
+        .form-group {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 10px auto;
+            max-width: 400px;
+        }
+        .form-group label {
+            width: 100px;
+            text-align: left;
+            margin-right: 10px;
+        }
+        .form-group input {
+            flex-grow: 1;
+        }
     </style>
 </head>
 <body>
@@ -38,14 +54,31 @@
 
     <!-- Time Calculator Section -->
     <h3>Time Difference Calculator</h3>
-    <p>Enter Start and End Time:</p>
-    <input type="datetime-local" id="startTime">
-    <input type="datetime-local" id="endTime">
+
+    <div class="form-group">
+        <label for="startDate">Start Date:</label>
+        <input type="date" id="startDate">
+    </div>
+    <div class="form-group">
+        <label for="startTime">Start Time:</label>
+        <input type="time" id="startTime">
+    </div>
+    <div class="form-group">
+        <label for="endDate">End Date:</label>
+        <input type="date" id="endDate">
+    </div>
+    <div class="form-group">
+        <label for="endTime">End Time:</label>
+        <input type="time" id="endTime">
+    </div>
+
     <br>
     <button onclick="calculateTime('seconds')">Show in Seconds</button>
     <button onclick="calculateTime('minutes')">Show in Minutes</button>
     <button onclick="calculateTime('hours')">Show in Hours</button>
     <button onclick="calculateTime('days')">Show in Days</button>
+    <button onclick="calculateTime('months')">Show in Months</button>
+    <button onclick="calculateTime('years')">Show in Years</button>
     <button onclick="calculateTime('full')">Show Full Breakdown</button>
     <h4 id="timeResult" class="output"></h4>
 
@@ -74,16 +107,30 @@
 
         // Time Difference Calculator Function
         function calculateTime(format) {
+            const startDate = document.getElementById("startDate").value;
             const startTime = document.getElementById("startTime").value;
+            const endDate = document.getElementById("endDate").value;
             const endTime = document.getElementById("endTime").value;
 
-            if (startTime === "" || endTime === "") {
-                document.getElementById("timeResult").innerHTML = "Please select valid start and end times.";
+            if (startDate === "" || endDate === "") {
+                document.getElementById("timeResult").innerHTML = "Please select valid start and end dates.";
                 return;
             }
 
-            const start = new Date(startTime);
-            const end = new Date(endTime);
+            let start = new Date(startDate);
+            let end = new Date(endDate);
+
+            // If time is provided, append the time to the date
+            if (startTime) {
+                const [startHours, startMinutes] = startTime.split(':');
+                start.setHours(startHours);
+                start.setMinutes(startMinutes);
+            }
+            if (endTime) {
+                const [endHours, endMinutes] = endTime.split(':');
+                end.setHours(endHours);
+                end.setMinutes(endMinutes);
+            }
 
             if (start > end) {
                 document.getElementById("timeResult").innerHTML = "End time must be after start time.";
@@ -96,6 +143,8 @@
             const minutes = Math.floor(timeDiff / 60);
             const hours = Math.floor(timeDiff / 3600);
             const days = Math.floor(timeDiff / 86400);
+            const months = Math.floor(days / 30.4375); // Average month duration
+            const years = Math.floor(days / 365.25);   // Average year duration
 
             if (format === "seconds") {
                 document.getElementById("timeResult").innerHTML = `Total Time: ${seconds} seconds.`;
@@ -105,17 +154,23 @@
                 document.getElementById("timeResult").innerHTML = `Total Time: ${hours} hours.`;
             } else if (format === "days") {
                 document.getElementById("timeResult").innerHTML = `Total Time: ${days} days.`;
+            } else if (format === "months") {
+                document.getElementById("timeResult").innerHTML = `Total Time: ${months} months.`;
+            } else if (format === "years") {
+                document.getElementById("timeResult").innerHTML = `Total Time: ${years} years.`;
             } else if (format === "full") {
-                const fullDays = Math.floor(timeDiff / 86400);
-                timeDiff %= 86400;
+                const fullYears = Math.floor(days / 365.25);
+                const remainingDaysAfterYears = days % 365.25;
 
-                const fullHours = Math.floor(timeDiff / 3600);
-                timeDiff %= 3600;
+                const fullMonths = Math.floor(remainingDaysAfterYears / 30.4375);
+                const remainingDaysAfterMonths = remainingDaysAfterYears % 30.4375;
 
-                const fullMinutes = Math.floor(timeDiff / 60);
+                const fullDays = Math.floor(remainingDaysAfterMonths);
+                const fullHours = Math.floor((timeDiff % 86400) / 3600);
+                const fullMinutes = Math.floor((timeDiff % 3600) / 60);
                 const fullSeconds = Math.floor(timeDiff % 60);
 
-                document.getElementById("timeResult").innerHTML = `Total Time: ${fullDays} days, ${fullHours} hours, ${fullMinutes} minutes, and ${fullSeconds} seconds.`;
+                document.getElementById("timeResult").innerHTML = `Total Time: ${fullYears} years, ${fullMonths} months, ${fullDays} days, ${fullHours} hours, ${fullMinutes} minutes, and ${fullSeconds} seconds.`;
             }
         }
     </script>
