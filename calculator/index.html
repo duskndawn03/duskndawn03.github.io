@@ -39,6 +39,14 @@
         .form-group input {
             flex-grow: 1;
         }
+        .holiday-group {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 10px auto;
+            max-width: 400px;
+            flex-direction: column;
+        }
     </style>
 </head>
 <body>
@@ -70,6 +78,18 @@
     <div class="form-group">
         <label for="endTime">End Time:</label>
         <input type="time" id="endTime">
+    </div>
+
+    <!-- Holiday Inputs -->
+    <h3>Select Holidays</h3>
+    <div class="holiday-group">
+        <label><input type="checkbox" id="fridayHoliday"> Friday</label>
+        <label><input type="checkbox" id="saturdayHoliday"> Saturday</label>
+        <label><input type="checkbox" id="sundayHoliday"> Sunday</label>
+    </div>
+    <div class="form-group">
+        <label for="optionalHolidays">Optional Holidays:</label>
+        <input type="number" id="optionalHolidays" value="0" min="0">
     </div>
 
     <br>
@@ -105,12 +125,16 @@
             document.getElementById("ageResult").innerHTML = `Your age is: ${age} years old.`;
         }
 
-        // Time Difference Calculator Function
+        // Time Difference Calculator Function with Holiday Exclusions
         function calculateTime(format) {
             const startDate = document.getElementById("startDate").value;
             const startTime = document.getElementById("startTime").value;
             const endDate = document.getElementById("endDate").value;
             const endTime = document.getElementById("endTime").value;
+            const fridayHoliday = document.getElementById("fridayHoliday").checked;
+            const saturdayHoliday = document.getElementById("saturdayHoliday").checked;
+            const sundayHoliday = document.getElementById("sundayHoliday").checked;
+            const optionalHolidays = parseInt(document.getElementById("optionalHolidays").value);
 
             if (startDate === "" || endDate === "") {
                 document.getElementById("timeResult").innerHTML = "Please select valid start and end dates.";
@@ -138,26 +162,43 @@
             }
 
             let timeDiff = (end - start) / 1000;  // Difference in seconds
+            let totalDays = Math.floor(timeDiff / 86400); // Total days
+
+            let holidayCount = 0;
+            let fridayCount = 0, saturdayCount = 0, sundayCount = 0;
+
+            // Iterate over each day between start and end
+            for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+                let day = d.getDay();
+                if (fridayHoliday && day === 5) fridayCount++;
+                if (saturdayHoliday && day === 6) saturdayCount++;
+                if (sundayHoliday && day === 0) sundayCount++;
+            }
+
+            holidayCount = fridayCount + saturdayCount + sundayCount + optionalHolidays;
+
+            // Exclude holidays from the total days
+            totalDays -= holidayCount;
 
             const seconds = Math.floor(timeDiff);
             const minutes = Math.floor(timeDiff / 60);
             const hours = Math.floor(timeDiff / 3600);
-            const days = Math.floor(timeDiff / 86400);
+            const days = totalDays; // Adjusted total days without holidays
             const months = Math.floor(days / 30.4375); // Average month duration
             const years = Math.floor(days / 365.25);   // Average year duration
 
             if (format === "seconds") {
-                document.getElementById("timeResult").innerHTML = `Total Time: ${seconds} seconds.`;
+                document.getElementById("timeResult").innerHTML = `Total Time (excluding holidays): ${seconds} seconds.<br>Fridays: ${fridayCount}, Saturdays: ${saturdayCount}, Sundays: ${sundayCount}, Optional Holidays: ${optionalHolidays}`;
             } else if (format === "minutes") {
-                document.getElementById("timeResult").innerHTML = `Total Time: ${minutes} minutes.`;
+                document.getElementById("timeResult").innerHTML = `Total Time (excluding holidays): ${minutes} minutes.<br>Fridays: ${fridayCount}, Saturdays: ${saturdayCount}, Sundays: ${sundayCount}, Optional Holidays: ${optionalHolidays}`;
             } else if (format === "hours") {
-                document.getElementById("timeResult").innerHTML = `Total Time: ${hours} hours.`;
+                document.getElementById("timeResult").innerHTML = `Total Time (excluding holidays): ${hours} hours.<br>Fridays: ${fridayCount}, Saturdays: ${saturdayCount}, Sundays: ${sundayCount}, Optional Holidays: ${optionalHolidays}`;
             } else if (format === "days") {
-                document.getElementById("timeResult").innerHTML = `Total Time: ${days} days.`;
+                document.getElementById("timeResult").innerHTML = `Total Time (excluding holidays): ${days} days.<br>Fridays: ${fridayCount}, Saturdays: ${saturdayCount}, Sundays: ${sundayCount}, Optional Holidays: ${optionalHolidays}`;
             } else if (format === "months") {
-                document.getElementById("timeResult").innerHTML = `Total Time: ${months} months.`;
+                document.getElementById("timeResult").innerHTML = `Total Time (excluding holidays): ${months} months.<br>Fridays: ${fridayCount}, Saturdays: ${saturdayCount}, Sundays: ${sundayCount}, Optional Holidays: ${optionalHolidays}`;
             } else if (format === "years") {
-                document.getElementById("timeResult").innerHTML = `Total Time: ${years} years.`;
+                document.getElementById("timeResult").innerHTML = `Total Time (excluding holidays): ${years} years.<br>Fridays: ${fridayCount}, Saturdays: ${saturdayCount}, Sundays: ${sundayCount}, Optional Holidays: ${optionalHolidays}`;
             } else if (format === "full") {
                 const fullYears = Math.floor(days / 365.25);
                 const remainingDaysAfterYears = days % 365.25;
@@ -170,7 +211,7 @@
                 const fullMinutes = Math.floor((timeDiff % 3600) / 60);
                 const fullSeconds = Math.floor(timeDiff % 60);
 
-                document.getElementById("timeResult").innerHTML = `Total Time: ${fullYears} years, ${fullMonths} months, ${fullDays} days, ${fullHours} hours, ${fullMinutes} minutes, and ${fullSeconds} seconds.`;
+                document.getElementById("timeResult").innerHTML = `Total Time (excluding holidays): ${fullYears} years, ${fullMonths} months, ${fullDays} days, ${fullHours} hours, ${fullMinutes} minutes, and ${fullSeconds} seconds.<br>Fridays: ${fridayCount}, Saturdays: ${saturdayCount}, Sundays: ${sundayCount}, Optional Holidays: ${optionalHolidays}`;
             }
         }
     </script>
