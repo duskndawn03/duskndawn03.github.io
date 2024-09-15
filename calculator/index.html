@@ -39,13 +39,18 @@
         .form-group input {
             flex-grow: 1;
         }
-        .holiday-group {
+        .holiday-workday-group {
             display: flex;
             justify-content: center;
-            align-items: center;
-            margin: 10px auto;
-            max-width: 400px;
-            flex-direction: column;
+            margin: 20px auto;
+            max-width: 800px;
+        }
+        .holiday-group, .workday-group {
+            width: 50%;
+        }
+        .holiday-group label, .workday-group label {
+            display: block;
+            margin: 5px 0;
         }
     </style>
 </head>
@@ -80,16 +85,26 @@
         <input type="time" id="endTime">
     </div>
 
-    <!-- Holiday Inputs -->
-    <h3>Select Holidays</h3>
-    <div class="holiday-group">
-        <label><input type="checkbox" id="fridayHoliday"> Friday</label>
-        <label><input type="checkbox" id="saturdayHoliday"> Saturday</label>
-        <label><input type="checkbox" id="sundayHoliday"> Sunday</label>
-    </div>
-    <div class="form-group">
-        <label for="optionalHolidays">Optional Holidays:</label>
-        <input type="number" id="optionalHolidays" value="0" min="0">
+    <!-- Holiday and Workday Inputs -->
+    <h3>Select Holidays and Workdays</h3>
+    <div class="holiday-workday-group">
+        <div class="holiday-group">
+            <h4>Select Holidays</h4>
+            <label><input type="checkbox" id="fridayHoliday"> Friday</label>
+            <label><input type="checkbox" id="saturdayHoliday"> Saturday</label>
+            <label><input type="checkbox" id="sundayHoliday"> Sunday</label>
+            <div class="form-group">
+                <label for="optionalHolidays">Optional Holidays:</label>
+                <input type="number" id="optionalHolidays" value="0" min="0">
+            </div>
+        </div>
+        <div class="workday-group">
+            <h4>Select Workdays</h4>
+            <div class="form-group">
+                <label for="extraWorkDays">Extra Workdays:</label>
+                <input type="number" id="extraWorkDays" value="0" min="0">
+            </div>
+        </div>
     </div>
 
     <br>
@@ -125,7 +140,7 @@
             document.getElementById("ageResult").innerHTML = `Your age is: ${age} years old.`;
         }
 
-        // Time Difference Calculator Function with Holiday Exclusions
+        // Time Difference Calculator Function with Holiday Exclusions and Workday Inclusions
         function calculateTime(format) {
             const startDate = document.getElementById("startDate").value;
             const startTime = document.getElementById("startTime").value;
@@ -135,6 +150,7 @@
             const saturdayHoliday = document.getElementById("saturdayHoliday").checked;
             const sundayHoliday = document.getElementById("sundayHoliday").checked;
             const optionalHolidays = parseInt(document.getElementById("optionalHolidays").value);
+            const extraWorkDays = parseInt(document.getElementById("extraWorkDays").value);
 
             if (startDate === "" || endDate === "") {
                 document.getElementById("timeResult").innerHTML = "Please select valid start and end dates.";
@@ -180,25 +196,28 @@
             // Exclude holidays from the total days
             totalDays -= holidayCount;
 
+            // Add workdays
+            totalDays += extraWorkDays;
+
             const seconds = Math.floor(timeDiff);
             const minutes = Math.floor(timeDiff / 60);
             const hours = Math.floor(timeDiff / 3600);
-            const days = totalDays; // Adjusted total days without holidays
+            const days = totalDays; // Adjusted total days with holidays removed and workdays added
             const months = Math.floor(days / 30.4375); // Average month duration
             const years = Math.floor(days / 365.25);   // Average year duration
 
             if (format === "seconds") {
-                document.getElementById("timeResult").innerHTML = `Total Time (excluding holidays): ${seconds} seconds.<br>Fridays: ${fridayCount}, Saturdays: ${saturdayCount}, Sundays: ${sundayCount}, Optional Holidays: ${optionalHolidays}`;
+                document.getElementById("timeResult").innerHTML = `Total Time (excluding holidays and including workdays): ${seconds} seconds.<br>Fridays: ${fridayCount}, Saturdays: ${saturdayCount}, Sundays: ${sundayCount}, Optional Holidays: ${optionalHolidays}, Extra Workdays: ${extraWorkDays}`;
             } else if (format === "minutes") {
-                document.getElementById("timeResult").innerHTML = `Total Time (excluding holidays): ${minutes} minutes.<br>Fridays: ${fridayCount}, Saturdays: ${saturdayCount}, Sundays: ${sundayCount}, Optional Holidays: ${optionalHolidays}`;
+                document.getElementById("timeResult").innerHTML = `Total Time (excluding holidays and including workdays): ${minutes} minutes.<br>Fridays: ${fridayCount}, Saturdays: ${saturdayCount}, Sundays: ${sundayCount}, Optional Holidays: ${optionalHolidays}, Extra Workdays: ${extraWorkDays}`;
             } else if (format === "hours") {
-                document.getElementById("timeResult").innerHTML = `Total Time (excluding holidays): ${hours} hours.<br>Fridays: ${fridayCount}, Saturdays: ${saturdayCount}, Sundays: ${sundayCount}, Optional Holidays: ${optionalHolidays}`;
+                document.getElementById("timeResult").innerHTML = `Total Time (excluding holidays and including workdays): ${hours} hours.<br>Fridays: ${fridayCount}, Saturdays: ${saturdayCount}, Sundays: ${sundayCount}, Optional Holidays: ${optionalHolidays}, Extra Workdays: ${extraWorkDays}`;
             } else if (format === "days") {
-                document.getElementById("timeResult").innerHTML = `Total Time (excluding holidays): ${days} days.<br>Fridays: ${fridayCount}, Saturdays: ${saturdayCount}, Sundays: ${sundayCount}, Optional Holidays: ${optionalHolidays}`;
+                document.getElementById("timeResult").innerHTML = `Total Time (excluding holidays and including workdays): ${days} days.<br>Fridays: ${fridayCount}, Saturdays: ${saturdayCount}, Sundays: ${sundayCount}, Optional Holidays: ${optionalHolidays}, Extra Workdays: ${extraWorkDays}`;
             } else if (format === "months") {
-                document.getElementById("timeResult").innerHTML = `Total Time (excluding holidays): ${months} months.<br>Fridays: ${fridayCount}, Saturdays: ${saturdayCount}, Sundays: ${sundayCount}, Optional Holidays: ${optionalHolidays}`;
+                document.getElementById("timeResult").innerHTML = `Total Time (excluding holidays and including workdays): ${months} months.<br>Fridays: ${fridayCount}, Saturdays: ${saturdayCount}, Sundays: ${sundayCount}, Optional Holidays: ${optionalHolidays}, Extra Workdays: ${extraWorkDays}`;
             } else if (format === "years") {
-                document.getElementById("timeResult").innerHTML = `Total Time (excluding holidays): ${years} years.<br>Fridays: ${fridayCount}, Saturdays: ${saturdayCount}, Sundays: ${sundayCount}, Optional Holidays: ${optionalHolidays}`;
+                document.getElementById("timeResult").innerHTML = `Total Time (excluding holidays and including workdays): ${years} years.<br>Fridays: ${fridayCount}, Saturdays: ${saturdayCount}, Sundays: ${sundayCount}, Optional Holidays: ${optionalHolidays}, Extra Workdays: ${extraWorkDays}`;
             } else if (format === "full") {
                 const fullYears = Math.floor(days / 365.25);
                 const remainingDaysAfterYears = days % 365.25;
@@ -211,7 +230,7 @@
                 const fullMinutes = Math.floor((timeDiff % 3600) / 60);
                 const fullSeconds = Math.floor(timeDiff % 60);
 
-                document.getElementById("timeResult").innerHTML = `Total Time (excluding holidays): ${fullYears} years, ${fullMonths} months, ${fullDays} days, ${fullHours} hours, ${fullMinutes} minutes, and ${fullSeconds} seconds.<br>Fridays: ${fridayCount}, Saturdays: ${saturdayCount}, Sundays: ${sundayCount}, Optional Holidays: ${optionalHolidays}`;
+                document.getElementById("timeResult").innerHTML = `Total Time (excluding holidays and including workdays): ${fullYears} years, ${fullMonths} months, ${fullDays} days, ${fullHours} hours, ${fullMinutes} minutes, and ${fullSeconds} seconds.<br>Fridays: ${fridayCount}, Saturdays: ${saturdayCount}, Sundays: ${sundayCount}, Optional Holidays: ${optionalHolidays}, Extra Workdays: ${extraWorkDays}`;
             }
         }
     </script>
