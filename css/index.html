@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Account OTP Generator</title>
+    <script src="https://cdn.jsdelivr.net/npm/otpauth@9.0.1/dist/otpauth.umd.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; margin: 50px; }
+        .otp-box { margin: 20px 0; padding: 10px; border: 1px solid #ccc; display: inline-block; width: 200px; }
+        .otp-label { font-weight: bold; }
+        .otp-code { font-size: 24px; font-weight: bold; color: #007bff; }
+        .timer { font-size: 14px; color: red; }
+    </style>
+</head>
+<body>
+
+    <h2>Multi-Account OTP Generator</h2>
+
+    <div class="otp-box">
+        <div class="otp-label">Service X OTP:</div>
+        <div id="otp-x" class="otp-code">Loading...</div>
+        <div id="timer-x" class="timer">⏳ 30s</div>
+    </div>
+
+    <div class="otp-box">
+        <div class="otp-label">Service Y OTP:</div>
+        <div id="otp-y" class="otp-code">Loading...</div>
+        <div id="timer-y" class="timer">⏳ 30s</div>
+    </div>
+
+    <script>
+        // Replace with your actual secrets
+        const accounts = {
+            "x": "NQPGCKEZQ5ZL7HRVX76XLDETSRRJD54D",  // X Secret
+            "y": "AB5HI5MA7POAUGOO4E6NSYIC2NXVMTA4" // Y Secret
+        };
+
+        function generateOTP(account, otpElementId) {
+            let totp = new OTPAuth.TOTP({
+                algorithm: "SHA1",
+                digits: 6,
+                period: 30,
+                secret: accounts[account]
+            });
+
+            document.getElementById(otpElementId).innerText = totp.generate();
+        }
+
+        function updateAllOTPs() {
+            generateOTP("x", "otp-x");
+            generateOTP("y", "otp-y");
+        }
+
+        function updateCountdown() {
+            let currentTime = Math.floor(Date.now() / 1000);
+            let timeLeft = 30 - (currentTime % 30); // Time remaining in the 30-sec cycle
+
+            document.getElementById("timer-x").innerText = `⏳ ${timeLeft}s`;
+            document.getElementById("timer-y").innerText = `⏳ ${timeLeft}s`;
+
+            if (timeLeft === 30) updateAllOTPs(); // Refresh OTPs when timer resets
+        }
+
+        updateAllOTPs();
+        setInterval(updateCountdown, 1000); // Update countdown every second
+    </script>
+
+</body>
+</html>
