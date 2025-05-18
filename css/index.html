@@ -8,10 +8,42 @@
     <script src="https://cdn.jsdelivr.net/npm/otpauth@9.0.1/dist/otpauth.umd.min.js"></script>
     <style>
         body { font-family: Arial, sans-serif; text-align: center; margin: 50px; }
-        .otp-box { margin: 20px 0; padding: 10px; border: 1px solid #ccc; display: inline-block; width: 200px; }
-        .otp-label { font-weight: bold; }
+        .otp-box { margin: 20px 0; padding: 10px; border: 1px solid #ccc; display: inline-block; width: 240px; position: relative; }
+        .otp-label { font-weight: bold; margin-bottom: 5px; }
         .otp-code { font-size: 24px; font-weight: bold; color: #007bff; }
-        .timer { font-size: 14px; color: red; }
+        .timer { font-size: 14px; color: red; margin-top: 5px; }
+        .copy-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 3px 8px;
+            font-size: 12px;
+            cursor: pointer;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+        }
+        #toast {
+            visibility: hidden;
+            min-width: 120px;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            border-radius: 4px;
+            padding: 10px;
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+        #toast.show {
+            visibility: visible;
+            opacity: 1;
+        }
     </style>
 </head>
 <body>
@@ -21,20 +53,23 @@
     <div class="otp-box">
         <div class="otp-label">Service X OTP:</div>
         <div id="otp-x" class="otp-code">Loading...</div>
+        <button class="copy-btn" onclick="copyOTP('otp-x')">Copy</button>
         <div id="timer-x" class="timer">⏳ 30s</div>
     </div>
 
     <div class="otp-box">
         <div class="otp-label">Service Y OTP:</div>
         <div id="otp-y" class="otp-code">Loading...</div>
+        <button class="copy-btn" onclick="copyOTP('otp-y')">Copy</button>
         <div id="timer-y" class="timer">⏳ 30s</div>
     </div>
 
+    <div id="toast">OTP copied!</div>
+
     <script>
-        // Replace with your actual secrets
         const accounts = {
-            "x": "NQPGCKEZQ5ZL7HRVX76XLDETSRRJD54D",  // X Secret
-            "y": "AB5HI5MA7POAUGOO4E6NSYIC2NXVMTA4" // Y Secret
+            "x": "NQPGCKEZQ5ZL7HRVX76XLDETSRRJD54D",
+            "y": "AB5HI5MA7POAUGOO4E6NSYIC2NXVMTA4"
         };
 
         function generateOTP(account, otpElementId) {
@@ -44,7 +79,6 @@
                 period: 30,
                 secret: accounts[account]
             });
-
             document.getElementById(otpElementId).innerText = totp.generate();
         }
 
@@ -55,16 +89,35 @@
 
         function updateCountdown() {
             let currentTime = Math.floor(Date.now() / 1000);
-            let timeLeft = 30 - (currentTime % 30); // Time remaining in the 30-sec cycle
+            let timeLeft = 30 - (currentTime % 30);
 
             document.getElementById("timer-x").innerText = `⏳ ${timeLeft}s`;
             document.getElementById("timer-y").innerText = `⏳ ${timeLeft}s`;
 
-            if (timeLeft === 30) updateAllOTPs(); // Refresh OTPs when timer resets
+            if (timeLeft === 30) updateAllOTPs();
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById("toast");
+            toast.innerText = message;
+            toast.classList.add("show");
+            setTimeout(() => {
+                toast.classList.remove("show");
+            }, 2000);
+        }
+
+        function copyOTP(elementId) {
+            const otp = document.getElementById(elementId).innerText;
+            navigator.clipboard.writeText(otp).then(() => {
+                showToast("OTP copied!");
+            }).catch(err => {
+                showToast("Copy failed!");
+                console.error(err);
+            });
         }
 
         updateAllOTPs();
-        setInterval(updateCountdown, 1000); // Update countdown every second
+        setInterval(updateCountdown, 1000);
     </script>
 
 </body>
